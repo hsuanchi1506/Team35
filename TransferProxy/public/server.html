@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Info</title>
+</head>
+<body>
+    <h1>Track Info</h1>
+    <button id="getInfo">Get Track Info</button>
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('getInfo').addEventListener('click', function() {
+            // Send an API request to /track-info when the button is clicked
+            fetch('/track-info')
+                .then(response => response.json())
+                .then(data => {
+                    // Display the returned data in the output div
+                    document.getElementById('output').innerText = JSON.stringify(data);
+                })
+                .catch(error => {
+                    // Display any errors
+                    document.getElementById('output').innerText = 'Error fetching data: ' + error;
+                });
+        });
+    </script>
+</body>
+</html>

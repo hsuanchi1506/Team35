@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Locker Station Query</title>
+  <style>
+    /* 全局樣式重置 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    input[type="text"] {
+      padding: 12px 20px;
+      font-size: 16px;
+      width: 300px;
+      border: 2px solid #ddd;
+      border-radius: 25px;
+      outline: none;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    input[type="text"]:focus {
+      border-color: #6c63ff;
+      box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #6c63ff;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      background-color: #5a53d4;
+      transform: translateY(-2px);
+    }
+    #result {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+    }
+    th {
+      background-color: #6c63ff;
+      color: #fff;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    td {
+      border-bottom: 1px solid #ddd;
+      color: #555;
+    }
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+    #resultTable {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Locker Availability Query</h1>
+    <form id="stationForm">
+      <input type="text" id="stationName" placeholder="Enter MRT Station Name" required>
+      <button type="submit">Get Locker Info</button>
+    </form>
+
+    <div id="result">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>Station Name</th>
+            <th>Locker Size</th>
+            <th>Description</th>
+            <th>Payment</th>
+            <th>Available</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('stationForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      
+      const stationName = document.getElementById('stationName').value;
+      
+      // Send the station name to the backend
+      fetch(`/track-info?stationName=${encodeURIComponent(stationName)}`)
+        .then(response => response.json())
+        .then(data => {
+          // Clean up the old table content
+          const tableBody = document.querySelector('#resultTable tbody');
+          tableBody.innerHTML = '';
+
+          // Extract JSON data (assuming it's before the XML response)
+          const jsonData = JSON.parse(data.split('<?xml')[0]);
+
+          // Loop through the data and create rows
+          jsonData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.StationName}</td>
+              <td>${item.Size}</td>
+              <td>${item.LockerDescription}</td>
+              <td>${item.payment}</td>
+              <td>${item.QuantityAvailable}</td>
+              <td>${item.Total}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+
+          // Display the table
+          document.getElementById('resultTable').style.display = 'table';
+        })
+        .catch(error => {
+          document.getElementById('result').innerText = `Error: ${error.message}`;
+        });
+    });
+  </script>
+</body>
+</html>

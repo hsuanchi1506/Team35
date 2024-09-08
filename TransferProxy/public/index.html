@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Info</title>
+</head>
+<body>
+    <h1>Track Info</h1>
+    
+    <label for="stationName">Enter Station Name:</label>
+    <input type="text" id="stationName" placeholder="e.g., 淡水站">
+    <button id="getInfo">Get CountDown</button>
+    
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('getInfo').addEventListener('click', function() {
+            // Get the station name entered by the user
+            const stationName = document.getElementById('stationName').value;
+
+            // Send a request to the backend with the station name as a query parameter
+            fetch(`/track-info?stationName=${encodeURIComponent(stationName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Check if data is found and display the result or an error message
+                    if (data.error) {
+                        document.getElementById('output').innerText = data.error;
+                    } else {
+                        // Display all matching results
+                        document.getElementById('output').innerHTML = data.map(item => `
+                            <p>
+                                Station: ${item.StationName}<br>
+                                Destination: ${item.DestinationName}<br>
+                                CountDown: ${item.CountDown}<br>
+                                NowDateTime: ${item.NowDateTime}
+                            </p>
+                        `).join('');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('output').innerText = 'Error fetching data: ' + error;
+                });
+        });
+    </script>
+</body>
+</html>
